@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+    <meta name="theme-color" content="#ffffff" />
+    <title>蛋包饭写字模拟器</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <button class="icon-button menu-button" id="menuButton" type="button" aria-label="菜单" aria-expanded="false" aria-controls="sideMenu">
+        <span></span><span></span><span></span>
+      </button>
+      <h1 id="pageTitle">蛋包饭写字模拟器</h1>
+      <label class="language-picker">
+        <span class="sr-only">Language</span>
+        <select id="languageSelect" aria-label="Language">
+          <option value="ja">日本語</option>
+          <option value="en">English</option>
+          <option value="ko">한국어</option>
+          <option value="zh" selected>简体中文</option>
+          <option value="tw">繁體中文</option>
+        </select>
+      </label>
+    </header>
+
+    <div class="menu-scrim" id="menuScrim" hidden></div>
+    <aside class="side-menu" id="sideMenu" aria-hidden="true">
+      <div class="side-menu-head">
+        <strong>OMU MOJI</strong>
+        <button class="icon-button close-button" id="closeMenu" type="button" aria-label="关闭菜单">×</button>
+      </div>
+      <nav aria-label="菜单">
+        <button class="menu-item active" type="button" data-menu-action="play">蛋包饭写字模拟器</button>
+        <button class="menu-item" type="button" data-menu-action="restart">重新开始</button>
+      </nav>
+    </aside>
+
+    <main class="studio-layout">
+      <div class="game-stage">
+      <section class="game" id="game" aria-label="蛋包饭写字游戏">
+        <canvas id="gameCanvas"></canvas>
+
+        <button class="start-button" id="startButton" type="button">开始料理</button>
+
+        <div class="play-actions" id="playActions" hidden>
+          <button class="round-action reset-action" id="resetButton" type="button" aria-label="撤销上一笔" title="撤销上一笔"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8a8 8 0 1 1 0 8M4 3v5h5"/></svg></button>
+          <button class="round-action done-action" id="doneButton" type="button">完成</button>
+          <button class="round-action redo-action" id="redoButton" type="button" aria-label="重做上一笔" title="重做上一笔"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 8a8 8 0 1 0 0 8M20 3v5h-5"/></svg></button>
+        </div>
+
+        <div class="result-actions" id="resultActions" hidden>
+          <button class="round-action result-retry" id="retryButton" type="button" aria-label="再来一次" title="再来一次">再来一次</button>
+          <button class="round-action result-save" id="saveButton" type="button" aria-label="保存图片" title="保存图片">保存</button>
+          <button class="round-action result-share" id="shareButton" type="button" aria-label="划开蛋包饭" title="划开蛋包饭">划开</button>
+        </div>
+
+        <div class="toast" id="toast" role="status" aria-live="polite"></div>
+      </section>
+        <div class="sauce-control" id="sauceControl" hidden>
+          <div class="zoom-tools">
+            <span>双指缩放 / 旋转</span>
+            <button type="button" data-zoom="-0.5" aria-label="缩小画布">−</button>
+            <button type="button" data-zoom="0" aria-label="还原画布缩放"><output id="zoomLevel">100%</output></button>
+            <button type="button" data-zoom="0.5" aria-label="放大画布">+</button>
+          </div>
+          <label for="sauceFlow">酱料流量 <output id="sauceFlowValue" for="sauceFlow">100%</output></label>
+          <div class="sauce-range"><span>细</span><input id="sauceFlow" type="range" min="10" max="200" step="5" value="100" aria-label="酱料流量，控制线条粗细"><span>粗</span></div>
+        </div>
+      </div>
+      <aside class="customize-panel" aria-label="餐桌布置">
+        <section><h3>01 <span>挑一张桌布</span></h3>
+          <input id="backgroundPhoto" class="sr-only" type="file" accept="image/*" aria-label="选择背景照片" tabindex="-1">
+          <div class="table-options" id="tableOptions">
+            <button id="importPhoto" class="table-option photo-import" type="button" aria-pressed="false">
+              <span class="photo-import-preview"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 10v28M10 24h28"/></svg></span>
+              <span>导入照片</span>
+            </button>
+          </div></section>
+        <section><h3>02 <span>加一点小配菜</span><small>可多选</small></h3>
+          <div class="side-options" id="dishPalette" aria-label="配菜，点选后使用右上角加号或左上角叉号"></div>
+          <div class="side-toolbar"><button type="button" id="editSides" aria-pressed="false">调整配菜</button><button type="button" id="clearSides">清空配菜</button></div>
+          <div id="dishEditor" hidden>
+            <div id="riceAdjust" hidden>
+              <p>拖动盘中的蛋包饭来移动位置</p>
+              <label for="riceSize">蛋包饭大小 <output id="riceSizeValue" for="riceSize">100%</output></label>
+              <input id="riceSize" type="range" min="70" max="125" step="1" value="100">
+            </div>
+            <p class="sr-only" id="selectionStatus" role="status" aria-live="polite">点选盘中的配菜进行调整</p>
+            <fieldset id="dishControls" disabled><legend class="sr-only">选中配菜的调整工具</legend>
+              <label>大小 <output id="scaleValue">100%</output><input id="dishScale" aria-label="配菜大小" type="range" min="45" max="180" value="100"></label>
+              <label>旋转 <output id="rotationValue">0°</output><input id="dishRotation" aria-label="配菜旋转" type="range" min="-180" max="180" value="0"></label>
+            </fieldset>
+          </div>
+        </section>
+        <div class="kitchen-tip">Tips<p>选中想要进行调整的配菜<br>可以进行旋转缩放移动等动作。</p></div>
+      </aside>
+    </main>
+
+
+    <script src="./bundle.js"></script>
+  </body>
+</html>
